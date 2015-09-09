@@ -13,6 +13,7 @@ Options:
 """
 
 from docopt import docopt
+from data_accessor import DataAccessor
 
 import sys
 import os
@@ -21,32 +22,22 @@ def main(argv):
     arguments =  docopt(__doc__, version='v0.0.1')
 
     todo_storage_file_name = os.path.join(os.path.expanduser('~'), ".todo")
+    data_accessor = DataAccessor(todo_storage_file_name)
 
     if arguments['add']:
-        with open(todo_storage_file_name, "a") as todo_storage_file:
-            todo_storage_file.write(arguments['<item>'] + '\n')
-            todo_storage_file.close()
+        data_accessor.add_task(arguments['<item>'])
+
 
     elif arguments['del']:
-        with open(todo_storage_file_name, "r") as todo_storage_file:
-            items = enumerate(todo_storage_file.readlines(), start=1)
-            todo_storage_file.close()
-
-            with open(todo_storage_file_name, "w") as todo_storage_file:
-                for i, line in items:
-                    if i != int(arguments['<item-number>']):
-                        todo_storage_file.write(line)
-                todo_storage_file.close()
+        data_accessor.delete_task(arguments['<item-number>'])
 
     elif arguments['list']:
-        with open(todo_storage_file_name, "r") as todo_storage_file:
-            for i, line in enumerate(todo_storage_file.readlines(), start=1):
-                print str(i) + ". " + line ,
-            todo_storage_file.close()
+        tasks = data_accessor.get_all_tasks()
+        for i, line in tasks:
+            print str(i) + ". " + line ,
 
     elif arguments['clear']:
-        with open(todo_storage_file_name, "w") as todo_storage_file:
-            todo_storage_file.close()
+        data_accessor.clear_all_tasks()
 
 if __name__ == '__main__':
     main(sys.argv)
