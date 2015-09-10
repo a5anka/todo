@@ -1,32 +1,39 @@
+import sqlite3
+
 class DataAccessor:
 
     def __init__(self, filename):
         self.filename = filename
+        conn = sqlite3.connect(filename)
+        conn.execute('''CREATE TABLE IF NOT EXISTS ITEMS
+        (ID INTEGER PRIMARY KEY,
+        DESC           TEXT    NOT NULL);''')
+        conn.close()
 
     def add_task(self, task):
-        with open(self.filename, "a") as todo_storage_file:
-            todo_storage_file.write(task + '\n')
-            todo_storage_file.close()
+        conn = sqlite3.connect(self.filename)
+        cursor = conn.execute("INSERT INTO ITEMS (DESC) VALUES ('" + task + "')")
+        conn.commit()
+        conn.close()
 
     def delete_task(self, task_index):
-        with open(self.filename, "r") as todo_storage_file:
-            items = enumerate(todo_storage_file.readlines(), start=1)
-            todo_storage_file.close()
-
-            with open(self.filename, "w") as todo_storage_file:
-                for i, line in items:
-                    if i != int(task_index):
-                        todo_storage_file.write(line)
-                todo_storage_file.close()
+        conn = sqlite3.connect(self.filename)
+        cursor = conn.execute("DELETE FROM ITEMS WHERE ID=" + task_index)
+        conn.commit()
+        conn.close()
 
     def get_all_tasks(self):
-        with open(self.filename, "r") as todo_storage_file:
-            all_tasks = enumerate(todo_storage_file.readlines(), start=1)
-            todo_storage_file.close()
+        conn = sqlite3.connect(self.filename)
+        cursor = conn.execute("SELECT ID, DESC FROM ITEMS")
+        all_tasks = []
+        for row in cursor:
+            all_tasks.append((row[0], row[1]))
+        conn.close()
 
         return all_tasks
 
     def clear_all_tasks(self):
-        with open(self.filename, "w") as todo_storage_file:
-            todo_storage_file.close()
-
+        conn = sqlite3.connect(self.filename)
+        cursor = conn.execute("DELETE FROM ITEMS")
+        conn.commit()
+        conn.close()

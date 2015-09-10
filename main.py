@@ -21,7 +21,7 @@ import os
 def main(argv):
     arguments =  docopt(__doc__, version='v0.0.1')
 
-    todo_storage_file_name = os.path.join(os.path.expanduser('~'), ".todo")
+    todo_storage_file_name = os.path.join(os.path.expanduser('~'), ".todo.db")
     data_accessor = DataAccessor(todo_storage_file_name)
 
     if arguments['add']:
@@ -34,7 +34,7 @@ def main(argv):
     elif arguments['list']:
         tasks = data_accessor.get_all_tasks()
         for i, line in tasks:
-            print str(i) + ". " + line ,
+            print str(i) + ". " + line 
 
     elif arguments['clear']:
         data_accessor.clear_all_tasks()
